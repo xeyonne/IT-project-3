@@ -98,28 +98,28 @@ while True:
     # TODO: Put your application logic here!
     html_content_to_send = login_page
     if len(body) != 0:
-    	k = body.split("&")
-    	print("[DEBUG]")
-    	print(k)
-    	print(len(k))
+        k = body.split("&")
+        print("[DEBUG]")
+        print(k)
+        print(len(k))
         username = k[0][9:]
         password = k[1][9:]
         print("[DEBUG] username: " + username)
         print("[DEBUG] password: " + password)
         for i in range(len(login)):
-			if username in login[i]:
-				if password in login[i]:
-
+            if username in login[i]:
+                if password in login[i]:
                     for x in range(len(data)):
                         if username in data[x]:
                             secret = data[x][1]
                             print("[DEBUG] secret: " + secret)
                             html_content_to_send = success_page + secret
                             break
-		    	else:
-	    			html_content_to_send = bad_creds_page
-	    	else:
-	    		html_content_to_send = bad_creds_page
+                    break
+                else:
+                    html_content_to_send = bad_creds_page
+            else:
+                html_content_to_send = bad_creds_page
 
 
     # You need to set the variables:
@@ -151,3 +151,4 @@ while True:
 # We will never actually get here.
 # Close the listening socket
 sock.close()
+
