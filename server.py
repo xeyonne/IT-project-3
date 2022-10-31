@@ -82,6 +82,9 @@ with open("secrets.txt") as f2:
 
 print(data)
 
+cookie = []
+#cookie.append(["bezos", str(123)])
+
 
 ### Loop to accept incoming HTTP connections and respond.
 while True:
@@ -95,31 +98,61 @@ while True:
     print_value('headers', headers)
     print_value('entity body', body)
 
-    # TODO: Put your application logic here!
+
+    token = headers.split("token=")
+
+    flag = False
     html_content_to_send = login_page
-    if len(body) != 0:
-        k = body.split("&")
-        print("[DEBUG]")
-        print(k)
-        print(len(k))
-        username = k[0][9:]
-        password = k[1][9:]
-        print("[DEBUG] username: " + username)
-        print("[DEBUG] password: " + password)
-        for i in range(len(login)):
-            if username in login[i]:
-                if password in login[i]:
-                    for x in range(len(data)):
-                        if username in data[x]:
-                            secret = data[x][1]
-                            print("[DEBUG] secret: " + secret)
-                            html_content_to_send = success_page + secret
-                            break
+    headers_to_send = ''
+
+    for i in range(len(cookie)):
+        print(cookie[i][1])
+        print(len(cookie))
+        if token[1] == cookie[i][1]:
+            print("token validated")
+            username = cookie[i][0]
+            for x in range(len(data)):
+                if username in data[x]:
+                    secret = data[x][1]
+                    print("[DEBUG] secret: " + secret)
+                    html_content_to_send = success_page + secret
+                    flag = True
                     break
+        elif len(cookie) >= 1 and token[1] != cookie[i][1]:
+            print("BAD CRED")
+            html_content_to_send = bad_creds_page
+            flag = True
+
+    # TODO: Put your application logic here!
+
+    if flag == False:
+        
+        if len(body) != 0:
+            k = body.split("&")
+            print("[DEBUG]")
+            print(k)
+            print(len(k))
+            username = k[0][9:]
+            password = k[1][9:]
+            print("[DEBUG] username: " + username)
+            print("[DEBUG] password: " + password)
+            for i in range(len(login)):
+                if username in login[i]:
+                    if password in login[i]:
+                        for x in range(len(data)):
+                            if username in data[x]:
+                                secret = data[x][1]
+                                print("[DEBUG] secret: " + secret)
+                                html_content_to_send = success_page + secret
+                                rand_val = random.getrandbits(64)
+                                headers_to_send = "Set-Cookie: token=" + str(rand_val) + "\r\n"
+                                cookie.append([username, str(rand_val)])
+                                break
+                        break
+                    else:
+                        html_content_to_send = bad_creds_page
                 else:
                     html_content_to_send = bad_creds_page
-            else:
-                html_content_to_send = bad_creds_page
 
 
     # You need to set the variables:
@@ -134,7 +167,7 @@ while True:
     # (2) `headers_to_send` => add any additional headers
     # you'd like to send the client?
     # Right now, we don't send any extra headers.
-    headers_to_send = ''
+    #headers_to_send = ''
 
     # Construct and send the final response
     response  = 'HTTP/1.1 200 OK\r\n'
@@ -151,4 +184,3 @@ while True:
 # We will never actually get here.
 # Close the listening socket
 sock.close()
-
