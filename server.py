@@ -98,61 +98,70 @@ while True:
     print_value('headers', headers)
     print_value('entity body', body)
 
+    logoutflag = False
 
-    token = headers.split("token=")
+    if body == "action=logout":
+        print("LOGOUT")
+        headers_to_send = "Set-Cookie: token=\r\n" + "expires=Thu, 01 Jan 1970 00:00:00 GMT\r\n"
+        html_content_to_send = logout_page
+        logoutflag = True
 
-    flag = False
-    html_content_to_send = login_page
-    headers_to_send = ''
+    if logoutflag == False:
+        token = headers.split("token=")
 
-    for i in range(len(cookie)):
-        print(cookie[i][1])
-        print(len(cookie))
-        if token[1] == cookie[i][1]:
-            print("token validated")
-            username = cookie[i][0]
-            for x in range(len(data)):
-                if username in data[x]:
-                    secret = data[x][1]
-                    print("[DEBUG] secret: " + secret)
-                    html_content_to_send = success_page + secret
+        cookieflag = False
+        html_content_to_send = login_page
+        headers_to_send = ''
+
+        if len(cookie) >= 1:
+            for i in range(len(cookie)):
+                print(cookie[i][1])
+                print(len(cookie))
+                if token[1] == cookie[i][1]:
+                    print("token validated")
+                    username = cookie[i][0]
+                    for x in range(len(data)):
+                        if username in data[x]:
+                            secret = data[x][1]
+                            print("[DEBUG] secret: " + secret)
+                            html_content_to_send = success_page + secret
+                            cookieflag = True
+                            break
+                else:
+                    print("BAD CRED")
+                    html_content_to_send = bad_creds_page
                     flag = True
-                    break
-        elif len(cookie) >= 1 and token[1] != cookie[i][1]:
-            print("BAD CRED")
-            html_content_to_send = bad_creds_page
-            flag = True
 
-    # TODO: Put your application logic here!
+        # TODO: Put your application logic here!
 
-    if flag == False:
-        
-        if len(body) != 0:
-            k = body.split("&")
-            print("[DEBUG]")
-            print(k)
-            print(len(k))
-            username = k[0][9:]
-            password = k[1][9:]
-            print("[DEBUG] username: " + username)
-            print("[DEBUG] password: " + password)
-            for i in range(len(login)):
-                if username in login[i]:
-                    if password in login[i]:
-                        for x in range(len(data)):
-                            if username in data[x]:
-                                secret = data[x][1]
-                                print("[DEBUG] secret: " + secret)
-                                html_content_to_send = success_page + secret
-                                rand_val = random.getrandbits(64)
-                                headers_to_send = "Set-Cookie: token=" + str(rand_val) + "\r\n"
-                                cookie.append([username, str(rand_val)])
-                                break
-                        break
+        if cookieflag == False:
+            
+            if len(body) != 0:
+                k = body.split("&")
+                print("[DEBUG]")
+                print(k)
+                print(len(k))
+                username = k[0][9:]
+                password = k[1][9:]
+                print("[DEBUG] username: " + username)
+                print("[DEBUG] password: " + password)
+                for i in range(len(login)):
+                    if username in login[i]:
+                        if password in login[i]:
+                            for x in range(len(data)):
+                                if username in data[x]:
+                                    secret = data[x][1]
+                                    print("[DEBUG] secret: " + secret)
+                                    html_content_to_send = success_page + secret
+                                    rand_val = random.getrandbits(64)
+                                    headers_to_send = "Set-Cookie: token=" + str(rand_val) + "\r\n"
+                                    cookie.append([username, str(rand_val)])
+                                    break
+                            break
+                        else:
+                            html_content_to_send = bad_creds_page
                     else:
                         html_content_to_send = bad_creds_page
-                else:
-                    html_content_to_send = bad_creds_page
 
 
     # You need to set the variables:
