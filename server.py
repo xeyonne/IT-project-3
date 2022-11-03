@@ -130,7 +130,7 @@ while True:
                 else:
                     print("BAD CRED")
                     html_content_to_send = bad_creds_page
-                    flag = True
+                    cookieflag = True
 
         # TODO: Put your application logic here!
 
