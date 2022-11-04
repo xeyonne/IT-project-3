@@ -80,11 +80,7 @@ with open("secrets.txt") as f2:
 	for line in f2:
 		data.append(line.split())
 
-print(data)
-
 cookie = []
-#cookie.append(["bezos", str(123)])
-
 
 ### Loop to accept incoming HTTP connections and respond.
 while True:
@@ -101,34 +97,27 @@ while True:
     logoutflag = False
 
     if body == "action=logout":
-        print("LOGOUT")
-        headers_to_send = "Set-Cookie: token=\r\n" + "expires=Thu, 01 Jan 1970 00:00:00 GMT\r\n"
+        headers_to_send = "Set-Cookie: token=; expires=Thu, 01 Jan 1970 00:00:00 GMT\r\nn"
         html_content_to_send = logout_page
         logoutflag = True
 
     if logoutflag == False:
         token = headers.split("token=")
-
         cookieflag = False
         html_content_to_send = login_page
         headers_to_send = ''
 
-        if len(cookie) >= 1:
+        if len(cookie) > 0 and len(token) > 1:
             for i in range(len(cookie)):
-                print(cookie[i][1])
-                print(len(cookie))
                 if token[1] == cookie[i][1]:
-                    print("token validated")
                     username = cookie[i][0]
                     for x in range(len(data)):
                         if username in data[x]:
                             secret = data[x][1]
-                            print("[DEBUG] secret: " + secret)
                             html_content_to_send = success_page + secret
                             cookieflag = True
                             break
                 else:
-                    print("BAD CRED")
                     html_content_to_send = bad_creds_page
                     cookieflag = True
 
@@ -138,20 +127,15 @@ while True:
             
             if len(body) != 0:
                 k = body.split("&")
-                print("[DEBUG]")
-                print(k)
-                print(len(k))
                 username = k[0][9:]
                 password = k[1][9:]
-                print("[DEBUG] username: " + username)
-                print("[DEBUG] password: " + password)
+
                 for i in range(len(login)):
                     if username in login[i]:
                         if password in login[i]:
                             for x in range(len(data)):
                                 if username in data[x]:
                                     secret = data[x][1]
-                                    print("[DEBUG] secret: " + secret)
                                     html_content_to_send = success_page + secret
                                     rand_val = random.getrandbits(64)
                                     headers_to_send = "Set-Cookie: token=" + str(rand_val) + "\r\n"
